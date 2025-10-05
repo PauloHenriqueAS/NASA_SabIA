@@ -16,7 +16,7 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
 
 A preview can be found [here](https://www.sabia.earth).
 
-A subpastas contem os codigos e respectivos metodos de instalaçao de cada uma das partes da aplicação
+The subfolders contain the code and the corresponding installation methods for each part of the application.
 
 ### Our Mascot – The SabIA 🐦
 
@@ -156,6 +156,7 @@ For a comprehensive overview of the models, detailed data preparation, and evalu
 
 City: São Paulo - Brazil
 ![Minha imagem](./image.png)
+
 
 
 
