@@ -42,29 +42,24 @@ O notebook `train_and_forecast_diario.ipynb` explora a previsão de variáveis c
 Abaixo estão exemplos de gráficos gerados pelo `train_and_forecast_diario.ipynb` que comparam os valores reais com as previsões para as variáveis climáticas:
 
 #### Temperatura Média (T2M)
-![Comparação de Temperatura Média (T2M) - Curto Prazo]
-<img width="1484" height="584" alt="t2m_daily" src="https://github.com/user-attachments/assets/424951a0-7e03-4768-8ff3-51725035d1de" />
-
+![Comparação de Temperatura Média (T2M) - Curto Prazo](versao_atualizada/daily_forecast_t2m.png)
+_Substituir pela imagem real do gráfico de T2M_
 
 #### Temperatura Máxima (T2M_MAX)
-![Comparação de Temperatura Máxima (T2M_MAX) - Curto Prazo]
-<img width="1484" height="584" alt="t2m_max_daily" src="https://github.com/user-attachments/assets/eea0ea97-3da9-4e6b-b9f9-a4a45b423190" />
-
+![Comparação de Temperatura Máxima (T2M_MAX) - Curto Prazo](versao_atualizada/daily_forecast_t2m_max.png)
+_Substituir pela imagem real do gráfico de T2M_MAX_
 
 #### Temperatura Mínima (T2M_MIN)
-![Comparação de Temperatura Mínima (T2M_MIN) - Curto Prazo]
-<img width="1484" height="584" alt="t2m_min_daily" src="https://github.com/user-attachments/assets/e5307a00-865a-43d9-b2aa-2cdaafe5ba48" />
-
+![Comparação de Temperatura Mínima (T2M_MIN) - Curto Prazo](versao_atualizada/daily_forecast_t2m_min.png)
+_Substituir pela imagem real do gráfico de T2M_MIN_
 
 #### Umidade Relativa (RH2M)
-![Comparação de Umidade Relativa (RH2M) - Curto Prazo]
-<img width="1484" height="584" alt="rh2m_daily" src="https://github.com/user-attachments/assets/8718e8f5-d57d-49fd-a60b-4c276c3ec9f8" />
-
+![Comparação de Umidade Relativa (RH2M) - Curto Prazo](versao_atualizada/daily_forecast_rh2m.png)
+_Substituir pela imagem real do gráfico de RH2M_
 
 #### Velocidade do Vento (WS2M)
-![Comparação de Velocidade do Vento (WS2M) - Curto Prazo]
-<img width="1484" height="584" alt="ws2m_daily" src="https://github.com/user-attachments/assets/960bb4f8-1324-4078-8901-53e2d5bdd543" />
-
+![Comparação de Velocidade do Vento (WS2M) - Curto Prazo](versao_atualizada/daily_forecast_ws2m.png)
+_Substituir pela imagem real do gráfico de WS2M_
 
 ---
 
@@ -75,6 +70,27 @@ O notebook `train_and_forecast_longo_prazo.ipynb` e `gerar_base_uberlandia.ipynb
 - **Objetivo**: Prever as condições para um período estendido (e.g., seis meses à frente).
 - **Metodologia**: Assim como no modelo de curto prazo, utiliza XGBoost com feature engineering avançado. A diferença crucial é o horizonte de previsão e a estratégia recorrente. O modelo é treinado até um ponto no tempo (e.g., final de 2024) e, em seguida, gera previsões para o período seguinte (e.g., primeiros seis meses de 2025) de forma recursiva, onde cada previsão é realimentada como entrada para a próxima.
 - **Aplicação**: Essas previsões são a base para a criação de uma base de dados futura que alimenta o APP, permitindo a visualização antecipada das condições climáticas.
+
+---
+
+## 5. Classificação das Previsões Climáticas
+
+Este módulo é responsável por classificar as condições climáticas previstas em categorias específicas, facilitando a interpretação e a geração de mensagens personalizadas. A classificação é baseada nos seguintes critérios:
+
+*   **Muito Quente (`very_hot`)**: Temperatura máxima prevista (`T2M_MAX_prediction`) é superior a 30°C.
+*   **Muito Frio (`very_cold`)**: Temperatura mínima prevista (`T2M_MIN_prediction`) é inferior a 10°C.
+*   **Muito Ventoso (`very_windy`)**: Velocidade do vento prevista (`WS2M_prediction`) é superior a 10 m/s.
+*   **Muito Úmido (`very_wet`)**: Umidade relativa prevista (`RH2M_prediction`) é superior a 90%.
+*   **Muito Desconfortável (`very_uncomfortable`)**: Temperatura média prevista (`T2M_prediction`) é superior a 28°C **E** umidade relativa prevista (`RH2M_prediction`) é superior a 80%.
+*   **Normal (`normal`)**: Nenhuma das condições extremas acima é atendida. Esta é a classificação padrão.
+
+Para dias com múltiplas condições extremas, todas as classificações aplicáveis são listadas (ex: "very_hot, very_uncomfortable").
+
+---
+
+## 6. Geração de Mensagens do SabIA
+
+Esta etapa integra o modelo classificador com o ChatGPT (utilizando o modelo `gpt-4o-mini`) para gerar mensagens de clima envolventes e culturalmente contextualizadas. O SabIA, um assistente de clima de Uberlândia, Minas Gerais, cria mensagens personalizadas para cada classificação diária, incluindo o charme local, referências à natureza do Cerrado e sugestões de atividades. As mensagens geradas são curtas (máximo de 150 caracteres) e refletem o espírito acolhedor de Minas Gerais.
 
 ---
 

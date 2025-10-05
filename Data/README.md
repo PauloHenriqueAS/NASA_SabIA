@@ -77,4 +77,25 @@ The `train_and_forecast_longo_prazo.ipynb` and `gerar_base_uberlandia.ipynb` not
 
 ---
 
+## 5. Classification of Climatic Forecasts
+
+This module is responsible for classifying predicted climatic conditions into specific categories, facilitating interpretation and the generation of personalized messages. The classification is based on the following criteria:
+
+*   **Very Hot (`very_hot`)**: Predicted maximum temperature (`T2M_MAX_prediction`) is above 30°C.
+*   **Very Cold (`very_cold`)**: Predicted minimum temperature (`T2M_MIN_prediction`) is below 10°C.
+*   **Very Windy (`very_windy`)**: Predicted wind speed (`WS2M_prediction`) is above 10 m/s.
+*   **Very Humid (`very_wet`)**: Predicted relative humidity (`RH2M_prediction`) is above 90%.
+*   **Very Uncomfortable (`very_uncomfortable`)**: Predicted mean temperature (`T2M_prediction`) is above 28°C **AND** predicted relative humidity (`RH2M_prediction`) is above 80%.
+*   **Normal (`normal`)**: None of the extreme conditions above are met. This is the default classification.
+
+For days with multiple extreme conditions, all applicable classifications are listed (e.g., "very_hot, very_uncomfortable").
+
+---
+
+## 6. SabIA Message Generation
+
+This step integrates the classifier model with ChatGPT (using the `gpt-4o-mini` model) to generate engaging and culturally contextualized weather messages. SabIA, a weather assistant from Uberlândia, Minas Gerais, creates personalized messages for each daily classification, including local charm, references to Cerrado nature, and activity suggestions. The generated messages are short (maximum 150 characters) and reflect the welcoming spirit of Minas Gerais.
+
+---
+
 This project demonstrates a comprehensive approach to developing climatic forecasting models, from study and validation to productization for application use.
