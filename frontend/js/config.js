@@ -1,10 +1,7 @@
 // Configurações da aplicação SabiA
 const CONFIG = {
-    // API OpenWeather - Substitua pela sua chave
-    API_KEY: 'API_Key',
-    
-    // URL base da API
-    API_BASE_URL: 'https://api.openweathermap.org/data/2.5',
+    // Backend API
+    BACKEND_URL: 'https://web-production-ba0a.up.railway.app/infos/GetDataLocation',
     
     // Configurações padrão
     DEFAULT_CITY: 'Uberlândia',

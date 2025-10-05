@@ -1,7 +1,7 @@
 {
-  "name": "SabiA - Clima Inteligente",
+  "name": "SabiA - Smart weather",
   "short_name": "SabiA",
-  "description": "Aplicativo de clima inteligente com IA",
+  "description": "Intelligent weather app with AI",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#4A90E2",

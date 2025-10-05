@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabIA - Clima Inteligente</title>
+    <title>SabIA - Smart Weather</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/styles.css">
-    <link rel="icon" type="image/svg+xml" href="img/bird-icon.svg">
+    <link rel="icon" type="image/svg+xml" href="img/bird-icon.png">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
@@ -14,7 +14,7 @@
           crossorigin=""/>
     <link rel="icon" type="image/png" href="img/icons/icon-192x192.png">
     <meta name="theme-color" content="#4A90E2">
-    <meta name="description" content="Aplicativo de clima inteligente com IA">
+    <meta name="description" content="Intelligent weather app with AI">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="SabiA">
@@ -61,7 +61,7 @@
         <!-- Alertas climáticos -->
         <section class="weather-alerts">
             <div class="alert-card" id="weatherAlert">
-                <div class="alert-icon">💧</div>
+                <div class="alert-icon"></div>
                 <div class="alert-text">
                     <p id="alertMessage"></p>
                 </div>
@@ -114,14 +114,9 @@
 
         <!-- Mapa de previsão de chuvas -->
         <section class="rain-map-section">
-            <h2 data-translate="rainMap">Previsão de Chuvas</h2>
+            <h2>Map</h2>
             <div class="rain-map-container">
                 <div id="precipitationMap" class="precipitation-map"></div>
-                <div class="map-controls">
-                    <button id="togglePrecipitation" class="map-btn active" data-translate="precipitation">Precipitação</button>
-                    <button id="toggleClouds" class="map-btn" data-translate="clouds">Nuvens</button>
-                    <button id="toggleTemperature" class="map-btn" data-translate="temperature">Temperatura</button>
-                </div>
             </div>
         </section>
     </main>

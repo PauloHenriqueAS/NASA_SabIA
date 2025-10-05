@@ -1,6 +1,5 @@
 // Usar configurações do arquivo config.js
-const API_KEY = CONFIG.API_KEY;
-const API_BASE_URL = CONFIG.API_BASE_URL;
+const BACKEND_URL = CONFIG.BACKEND_URL;
 
 // Estado da aplicação
 let currentWeather = null;
@@ -11,7 +10,6 @@ let selectedDate = null;
 
 // Variáveis do mapa
 let weatherMap = null;
-let currentMapLayer = 'precipitation_new';
 let currentLocationMarker = null;
 let isChatOpen = false;
 let currentLanguage = 'en';
@@ -32,9 +30,6 @@ const elements = {
     visibility: document.getElementById('visibility'),
     sevenDayForecast: document.getElementById('sevenDayForecast'),
     precipitationMap: document.getElementById('precipitationMap'),
-    togglePrecipitation: document.getElementById('togglePrecipitation'),
-    toggleClouds: document.getElementById('toggleClouds'),
-    toggleTemperature: document.getElementById('toggleTemperature'),
     aiChatContainer: document.getElementById('aiChatContainer'),
     aiChatBtn: document.getElementById('aiChatBtn'),
     closeChat: document.getElementById('closeChat'),
@@ -393,12 +388,68 @@ function initializeApp() {
     // Verificar se é PWA
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
-            .then(registration => console.log('SW registrado:', registration))
-            .catch(error => console.log('Erro ao registrar SW:', error));
+        .then(registration => {})
+        .catch(error => {});
     }
 
-    // SEMPRE usar Uberlândia como localização inicial (ignorar geolocalização)
-    getWeatherByCoords(CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon);
+    // Testar conectividade com o backend antes de carregar dados
+    testBackendConnection()
+        .then(() => {
+            // SEMPRE usar Uberlândia como localização inicial (ignorar geolocalização)
+                getWeatherByCoords(CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon);
+        })
+        .catch((error) => {
+            console.error('Erro de conectividade com backend:', error);
+            showBackendConnectionError();
+        });
+}
+
+// Testar conectividade com o backend
+async function testBackendConnection() {
+    try {
+        const response = await fetch(BACKEND_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name_city: "Uberlândia"
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Backend não disponível: ${response.status} ${response.statusText}`);
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Erro de conectividade:', error);
+        throw error;
+    }
+}
+
+// Mostrar erro de conectividade com backend
+function showBackendConnectionError() {
+    const messages = {
+        'pt': 'Não foi possível conectar com o servidor. Verifique se o backend está rodando em http://127.0.0.1:8000',
+        'en': 'Could not connect to server. Please check if the backend is running at http://127.0.0.1:8000',
+        'es': 'No se pudo conectar al servidor. Verifique si el backend está ejecutándose en http://127.0.0.1:8000'
+    };
+    
+    Swal.fire({
+        title: '🔌 Erro de Conexão',
+        text: messages[currentLanguage],
+        icon: 'error',
+        confirmButtonText: 'Tentar Novamente',
+        confirmButtonColor: '#4A90E2',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Tentar novamente
+            initializeApp();
+        }
+    });
 }
 
 // Mostrar alerta de versão de teste
@@ -456,10 +507,8 @@ function setupDateLimitations() {
 async function loadWeatherData() {
     showLoading(true);
     try {
-        await Promise.all([
-            getCurrentWeather(currentCity),
-            getForecast(currentCity)
-        ]);
+        const data = await getWeatherData();
+        processWeatherData(data);
         updateUI();
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -478,17 +527,18 @@ async function searchCity() {
 
     // FORÇAR UBERLÂNDIA - Versão de teste
     const forcedCity = 'Uberlândia';
-    
+
     showLoading(true);
     try {
-        // Se uma data foi selecionada, buscar dados históricos
+        // Buscar dados do backend
+        const data = await getWeatherData(date);
+        processWeatherData(data);
+        
+        // Se uma data foi selecionada, marcar como selecionada
         if (date) {
             selectedDate = date;
-            await getHistoricalWeather(forcedCity, date);
         } else {
             selectedDate = null;
-            await getCurrentWeather(forcedCity);
-            await getForecast(forcedCity);
         }
         
         currentCity = forcedCity;
@@ -526,114 +576,128 @@ function showCityRestrictionAlert(attemptedCity) {
     });
 }
 
-// Obter clima atual
-async function getCurrentWeather(city) {
-    const response = await fetch(`${API_BASE_URL}/weather?q=${city}&appid=${API_KEY}&units=metric&lang=en`);
-    if (!response.ok) throw new Error('Erro na API');
-    currentWeather = await response.json();
-}
-
-// Obter previsão
-async function getForecast(city) {
-    const response = await fetch(`${API_BASE_URL}/forecast?q=${city}&appid=${API_KEY}&units=metric&lang=en`);
-    if (!response.ok) throw new Error('Erro na API');
-    const data = await response.json();
-    forecast = data.list;
-}
-
-// Obter dados climáticos históricos
-async function getHistoricalWeather(city, date) {
-    // Converter data para timestamp Unix
-    const targetDate = new Date(date);
-    const timestamp = Math.floor(targetDate.getTime() / 1000);
+// Obter dados do clima do backend
+async function getWeatherData(date = null) {
+    const requestData = {
+        name_city: "Uberlândia"
+    };
     
-    // Para dados históricos, usamos a API One Call 3.0 (requer assinatura paga)
-    // Como alternativa, vamos simular dados históricos baseados nos dados atuais
-    // Em uma implementação real, você usaria a API histórica da OpenWeatherMap
     
     try {
-        // Primeiro, obter dados atuais para usar como base
-        await getCurrentWeather(city);
+        const response = await fetch(BACKEND_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
         
-        // Simular dados históricos (em produção, use a API histórica real)
-        if (currentWeather) {
-            // Ajustar dados baseados na data selecionada
-            const daysDiff = Math.floor((Date.now() - targetDate.getTime()) / (1000 * 60 * 60 * 24));
-            
-            // Simular variações baseadas na diferença de dias
-            const tempVariation = Math.sin(daysDiff * 0.1) * 5; // Variação de ±5°C
-            const humidityVariation = Math.cos(daysDiff * 0.2) * 10; // Variação de ±10%
-            
-            // Aplicar variações aos dados atuais
-            currentWeather.main.temp = Math.round(currentWeather.main.temp + tempVariation);
-            currentWeather.main.feels_like = Math.round(currentWeather.main.feels_like + tempVariation);
-            currentWeather.main.humidity = Math.max(0, Math.min(100, Math.round(currentWeather.main.humidity + humidityVariation)));
-            
-            // Adicionar indicador de que são dados históricos
-            currentWeather.historical = true;
-            currentWeather.historicalDate = date;
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Erro na resposta:', errorText);
+            throw new Error(`Erro na API: ${response.status} ${response.statusText} - ${errorText}`);
         }
         
-        // Para previsão histórica, vamos usar dados simulados
-        forecast = generateHistoricalForecast(date);
-        
+    const data = await response.json();
+        return data;
     } catch (error) {
-        console.error('Erro ao obter dados históricos:', error);
+        console.error('Erro na requisição:', error);
         throw error;
     }
 }
 
-// Gerar previsão histórica simulada
-function generateHistoricalForecast(date) {
-    const targetDate = new Date(date);
-    const forecastData = [];
+// Processar dados do backend
+function processWeatherData(data) {
     
-    // Gerar 5 dias de previsão a partir da data selecionada
-    for (let i = 0; i < 5; i++) {
-        const forecastDate = new Date(targetDate);
-        forecastDate.setDate(targetDate.getDate() + i);
-        
-        // Simular dados de previsão
-        const baseTemp = 25 + Math.sin(i * 0.5) * 8; // Temperatura base com variação
-        const baseHumidity = 60 + Math.cos(i * 0.3) * 20; // Umidade base com variação
-        
-        forecastData.push({
-            dt: Math.floor(forecastDate.getTime() / 1000),
-            main: {
-                temp: baseTemp,
-                temp_max: baseTemp + 3,
-                temp_min: baseTemp - 3,
-                humidity: Math.round(baseHumidity)
-            },
-            weather: [{
-                main: i % 2 === 0 ? 'Clear' : 'Clouds',
-                description: i % 2 === 0 ? 'clear sky' : 'few clouds'
-            }]
-        });
+    if (!data) {
+        throw new Error('Nenhum dado recebido do backend');
     }
     
-    return forecastData;
+    if (!Array.isArray(data)) {
+        console.error('Dados não são um array:', data);
+        throw new Error('Formato de dados inválido - esperado array');
+    }
+    
+    if (data.length === 0) {
+        throw new Error('Array de dados vazio recebido do backend');
+    }
+    
+    // Primeiro item é o clima atual
+    const currentData = data[0];
+    
+    // Validar campos obrigatórios
+    const requiredFields = ['T2M_prediction', 'WS2M_prediction', 'RH2M_prediction', 'classification', 'sabia_message_en'];
+    for (const field of requiredFields) {
+        if (currentData[field] === undefined || currentData[field] === null) {
+            console.error(`Campo obrigatório ausente: ${field}`, currentData);
+            throw new Error(`Campo obrigatório ausente: ${field}`);
+        }
+    }
+    
+    // Converter dados do backend para formato esperado pela UI
+    currentWeather = {
+        main: {
+            temp: currentData.T2M_prediction,
+            feels_like: currentData.T2M_prediction, // T2M_prediction conforme especificado
+            humidity: currentData.WS2M_prediction, // Mapeamento conforme especificado
+            temp_max: currentData.T2M_MAX_prediction || currentData.T2M_prediction,
+            temp_min: currentData.T2M_MIN_prediction || currentData.T2M_prediction
+        },
+        wind: {
+            speed: currentData.RH2M_prediction / 3.6 // Converter km/h para m/s
+        },
+        weather: [{
+            main: getWeatherConditionFromClassification(currentData.classification),
+            description: currentData.classification
+        }],
+        visibility: 10000, // Valor padrão
+        sabia_message: currentData.sabia_message_en,
+        historical: selectedDate !== null,
+        historicalDate: selectedDate
+    };
+    
+    
+    // Usar todos os dados como previsão
+    forecast = data;
 }
+
+// Converter classificação para condição climática
+function getWeatherConditionFromClassification(classification) {
+    const classificationMap = {
+        'sunny': 'Clear',
+        'cloudy': 'Clouds',
+        'rainy': 'Rain',
+        'stormy': 'Thunderstorm',
+        'snowy': 'Snow',
+        'foggy': 'Mist'
+    };
+    
+    return classificationMap[classification.toLowerCase()] || 'Clear';
+}
+
 
 // Obter clima por coordenadas
 async function getWeatherByCoords(lat, lon) {
+    showLoading(true);
     try {
-        const response = await fetch(`${API_BASE_URL}/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=en`);
-        if (!response.ok) throw new Error('Erro na API');
-        const data = await response.json();
-        currentCity = data.name;
-        currentLocation = `${data.name} - ${data.sys.country}`;
+        // Sempre usar Uberlândia
+        currentCity = 'Uberlândia';
+        currentLocation = 'Uberlândia';
         elements.citySearch.placeholder = currentLocation;
         
         // Atualizar mapa com nova localização
         updateMapLocation([lat, lon]);
         
-        await getCurrentWeather(data.name);
-        await getForecast(data.name);
+        // Carregar dados do backend
+        const data = await getWeatherData();
+        processWeatherData(data);
         updateUI();
     } catch (error) {
         console.error('Erro ao obter clima por coordenadas:', error);
-        loadWeatherData(); // Fallback
+        showError('Erro ao carregar dados do clima');
+    } finally {
+        showLoading(false);
     }
 }
 
@@ -716,6 +780,16 @@ function formatDate(dateString) {
 
 // Atualizar alerta climático
 function updateWeatherAlert() {
+    // Usar mensagem do backend se disponível
+    if (currentWeather.sabia_message) {
+        elements.alertMessage.innerHTML = `
+            <span class="alert-icon">🐦</span>
+            ${currentWeather.sabia_message}
+        `;
+        return;
+    }
+    
+    // Fallback para lógica anterior se não houver mensagem do backend
     const temp = currentWeather.main.temp;
     const weather = currentWeather.weather[0].main.toLowerCase();
     const windSpeed = currentWeather.wind.speed * 3.6; // Converter m/s para km/h
@@ -746,26 +820,18 @@ function updateWeatherAlert() {
 function updateCurrentWeather() {
     elements.currentTemp.textContent = `${Math.round(currentWeather.main.temp)}°C`;
     elements.feelsLike.textContent = `${Math.round(currentWeather.main.feels_like)}°C`;
-    elements.humidity.textContent = `${currentWeather.main.humidity}%`;
+    elements.humidity.textContent = `${Math.round(currentWeather.main.humidity)}%`;
     elements.windSpeed.textContent = `${Math.round(currentWeather.wind.speed * 3.6)} km/h`;
     elements.visibility.textContent = `${Math.round(currentWeather.visibility / 1000)} km`;
     
-    // UV Index (simulado - a API gratuita não inclui UV)
-    const uvValue = Math.round(Math.random() * 11);
-    let uvText = 'Baixo';
-    if (uvValue > 8) uvText = 'Muito alto';
-    else if (uvValue > 6) uvText = 'Alto';
-    else if (uvValue > 3) uvText = 'Moderado';
-    
-    elements.uvIndex.textContent = uvText;
+    // UV Index - usar classificação do backend diretamente
+    const classification = currentWeather.weather[0].description;
+    elements.uvIndex.textContent = classification;
 }
 
 // Atualizar previsão de 6 dias
 function updateForecast() {
     if (!forecast) return;
-    
-    const dailyForecast = getDailyForecast(); // Já limitado a 6 dias na função
-    console.log('Dias de previsão:', dailyForecast.length); // Debug
     
     elements.sevenDayForecast.innerHTML = '';
     
@@ -783,33 +849,56 @@ function updateForecast() {
         'es': ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
     };
     
-    // Garantir que temos exatamente 6 cards
-    const targetDays = 6;
-    const currentDate = new Date();
-    
-    for (let i = 0; i < targetDays; i++) {
+    // Usar dados do backend (itens 1-6, pulando apenas o item 0)
+    const startIndex = 1; // Começar do item 1
+    const maxDays = 6; // Exatamente 6 dias
+    for (let i = 0; i < maxDays; i++) {
+        const dayData = forecast[startIndex + i];
+        
+        if (!dayData) {
+            console.warn(`Dados não encontrados para o dia ${i + 1}`);
+            continue;
+        }
+        
+        
         const dayElement = document.createElement('div');
         dayElement.className = 'forecast-day';
         
-        // Calcular data para o dia atual + i
-        const date = new Date(currentDate);
-        date.setDate(currentDate.getDate() + i);
+        // Converter data do backend
+        let date;
+        try {
+            // Tentar diferentes formatos de data
+            if (typeof dayData.date === 'string') {
+                date = new Date(dayData.date);
+            } else if (dayData.date instanceof Date) {
+                date = dayData.date;
+            } else {
+                throw new Error('Formato de data inválido');
+            }
+            
+            // Verificar se a data é válida
+            if (isNaN(date.getTime())) {
+                throw new Error('Data inválida');
+            }
+        } catch (error) {
+            console.error('Erro ao processar data:', dayData.date, error);
+            // Usar data atual como fallback
+            date = new Date();
+            date.setDate(date.getDate() + i + 1);
+        }
         
         const dayOfWeek = date.getDay();
         const dayName = dayNames[currentLanguage][dayOfWeek];
         const dayNumber = date.getDate();
         const monthName = monthNames[currentLanguage][date.getMonth()];
         
-        // Verificar se temos dados para este dia
-        const dayData = dailyForecast[i];
-        
-        if (dayData) {
-            // Obter ícone baseado na condição climática
-            const weatherIcon = getWeatherIcon(dayData.weather[0].main.toLowerCase());
+        // Obter ícone baseado na classificação
+        const weatherIcon = getWeatherIconFromClassification(dayData.classification);
             
             // Obter temperaturas máxima e mínima
-            const tempMax = Math.round(dayData.main.temp_max);
-            const tempMin = Math.round(dayData.main.temp_min);
+        const tempMax = Math.round(dayData.T2M_MAX_prediction || 0);
+        const tempMin = Math.round(dayData.T2M_MIN_prediction || 0);
+        
             
             dayElement.innerHTML = `
                 <div class="forecast-day-info">
@@ -822,23 +911,27 @@ function updateForecast() {
                     <div class="forecast-temp-low">${tempMin}°</div>
                 </div>
             `;
-        } else {
-            // Card vazio se não temos dados
-            dayElement.innerHTML = `
-                <div class="forecast-day-info">
-                    <div class="forecast-day-name">${dayName}</div>
-                    <div class="forecast-day-date">${dayNumber} ${monthName}</div>
-                </div>
-                <div class="forecast-weather-icon">🌤️</div>
-                <div class="forecast-temperatures">
-                    <div class="forecast-temp-high">30°</div>
-                    <div class="forecast-temp-low">28°</div>
-                </div>
-            `;
-        }
         
         elements.sevenDayForecast.appendChild(dayElement);
     }
+    
+}
+
+// Obter ícone baseado na classificação do backend
+function getWeatherIconFromClassification(classification) {
+    const iconMap = {
+        'sunny': '☀️',
+        'clear': '☀️',
+        'cloudy': '☁️',
+        'overcast': '☁️',
+        'rainy': '🌧️',
+        'stormy': '⛈️',
+        'snowy': '❄️',
+        'foggy': '🌫️',
+        'mist': '🌫️'
+    };
+    
+    return iconMap[classification.toLowerCase()] || '🌤️';
 }
 
 // Função para obter ícone de clima baseado na condição
@@ -904,7 +997,6 @@ function getDailyForecast() {
         .sort((a, b) => a.dt - b.dt)
         .slice(0, 6);
     
-    console.log('Dados diários processados:', dailyValues.length); // Debug
     return dailyValues;
 }
 
@@ -1032,49 +1124,30 @@ function scrollToBottom() {
     });
 }
 
-// Inicializar mapa de precipitação
+// Inicializar mapa de Uberlândia
 function initializeWeatherMap() {
     if (!elements.precipitationMap) return;
     
-    // Criar mapa centrado na localização atual
-    const defaultCoords = [CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon];
-    weatherMap = L.map('precipitationMap').setView(defaultCoords, 10);
+    // Criar mapa centrado em Uberlândia
+    const uberlandiaCoords = [CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon];
+    weatherMap = L.map('precipitationMap').setView(uberlandiaCoords, 12);
     
-    // Adicionar camada base
+    // Adicionar camada base do OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18
     }).addTo(weatherMap);
     
-    // Adicionar camada de precipitação
-    addWeatherLayer('precipitation_new');
+    // Adicionar marcador de Uberlândia
+    addLocationMarker(uberlandiaCoords);
     
-    // Adicionar marcador da localização atual
-    addLocationMarker(defaultCoords);
-    
-    // Configurar controles do mapa
-    setupMapControls();
+    // Remover controles do mapa (não precisamos mais)
+    // setupMapControls(); // Comentado - não precisamos mais dos controles
 }
 
-// Adicionar camada de clima
-function addWeatherLayer(layerType) {
-    if (!weatherMap) return;
-    
-    // Remover camada anterior se existir
-    if (weatherMap.weatherLayer) {
-        weatherMap.removeLayer(weatherMap.weatherLayer);
-    }
-    
-    // Criar nova camada
-    const layerUrl = `https://tile.openweathermap.org/map/${layerType}/{z}/{x}/{y}.png?appid=${API_KEY}`;
-    weatherMap.weatherLayer = L.tileLayer(layerUrl, {
-        attribution: '© OpenWeatherMap',
-        opacity: 0.7
-    }).addTo(weatherMap);
-    
-    currentMapLayer = layerType;
-}
+// Função removida - não precisamos mais de camadas do OpenWeather
 
-// Adicionar marcador da localização
+// Adicionar marcador de Uberlândia
 function addLocationMarker(coords) {
     if (!weatherMap) return;
     
@@ -1095,56 +1168,33 @@ function addLocationMarker(coords) {
         .addTo(weatherMap)
         .bindPopup(`
             <div class="location-popup">
-                <h4>${currentLocation}</h4>
-                <p>Localização atual</p>
+                <h4>Uberlândia</h4>
+                <p>Parque do Sabiá</p>
             </div>
         `);
 }
 
-// Configurar controles do mapa
-function setupMapControls() {
-    if (!elements.togglePrecipitation) return;
-    
-    // Event listeners para os botões
-    elements.togglePrecipitation.addEventListener('click', () => {
-        switchMapLayer('precipitation_new', elements.togglePrecipitation);
-    });
-    
-    elements.toggleClouds.addEventListener('click', () => {
-        switchMapLayer('clouds_new', elements.toggleClouds);
-    });
-    
-    elements.toggleTemperature.addEventListener('click', () => {
-        switchMapLayer('temp_new', elements.toggleTemperature);
-    });
-}
+// Funções de controles do mapa removidas - não precisamos mais
 
-// Trocar camada do mapa
-function switchMapLayer(layerType, activeButton) {
-    // Atualizar botões ativos
-    document.querySelectorAll('.map-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    activeButton.classList.add('active');
-    
-    // Adicionar nova camada
-    addWeatherLayer(layerType);
-}
-
-// Atualizar localização no mapa
+// Atualizar localização no mapa (sempre Uberlândia)
 function updateMapLocation(coords) {
     if (!weatherMap) return;
     
-    // Atualizar centro do mapa
-    weatherMap.setView(coords, 10);
+    // Sempre manter foco em Uberlândia
+    const uberlandiaCoords = [CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon];
+    weatherMap.setView(uberlandiaCoords, 12);
     
-    // Atualizar marcador
-    addLocationMarker(coords);
+    // Atualizar marcador para Uberlândia
+    addLocationMarker(uberlandiaCoords);
 }
 
 // Mostrar loading
 function showLoading(show) {
+    if (elements.loadingOverlay) {
     elements.loadingOverlay.classList.toggle('hidden', !show);
+    } else {
+        console.error('Elemento loadingOverlay não encontrado!');
+    }
 }
 
 // Mostrar erro
@@ -1160,11 +1210,10 @@ function showError(message) {
 
 // Detectar mudanças de conectividade
 window.addEventListener('online', () => {
-    console.log('Conexão restaurada');
     loadWeatherData();
 });
 
 window.addEventListener('offline', () => {
-    console.log('Conexão perdida');
     showError('Sem conexão com a internet');
 });
+
