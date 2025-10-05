@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SabIA - Clima Inteligente</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/svg+xml" href="img/bird-icon.svg">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <link rel="icon" type="image/png" href="img/icons/icon-192x192.png">
+    <meta name="theme-color" content="#4A90E2">
+    <meta name="description" content="Aplicativo de clima inteligente com IA">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SabiA">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+</head>
+<body>
+    <!-- Header com busca -->
+    <header class="header">
+        <div class="search-container">
+            <div class="search-row">
+                <div class="logo-container">
+                    <img src="img/bird-icon.png" alt="SabiA" class="logo-icon" />
+                    <span class="logo-text">SabIA</span>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="citySearch" placeholder="Uberlândia - Parque do Sabiá" />
+                    <button id="searchBtn">🔍</button>
+                </div>
+                <div class="language-selector">
+                    <select id="languageSelect">
+                        <option value="pt">BR</option>
+                        <option value="en">US</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+        <!-- Passarinho do clima -->
+        <section class="weather-mascot">
+            <div class="mascot-container">
+                <div class="bird rainy" id="weatherBird">
+                    <div class="bird-body">
+                        <img src="img/gifs/bird-rain.gif" alt="SabiA - chuva" class="bird-gif" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alertas climáticos -->
+        <section class="weather-alerts">
+            <div class="alert-card" id="weatherAlert">
+                <div class="alert-icon">💧</div>
+                <div class="alert-text">
+                    <p id="alertMessage"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Informações climáticas atuais -->
+        <section class="current-weather">
+            <div class="weather-grid">
+                <div class="weather-card">
+                    <div class="weather-icon">🌡️</div>
+                    <div class="weather-value" id="currentTemp">34°C</div>
+                    <div class="weather-label" data-translate="temperature">Temperatura</div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-icon">🔥</div>
+                    <div class="weather-value" id="feelsLike">38°C</div>
+                    <div class="weather-label" data-translate="feelsLike">Sensação</div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-icon">💧</div>
+                    <div class="weather-value" id="humidity">40%</div>
+                    <div class="weather-label" data-translate="humidity">Umidade</div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-icon">🌬️</div>
+                    <div class="weather-value" id="windSpeed">15 km/h</div>
+                    <div class="weather-label" data-translate="wind">Vento</div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-icon">☀️</div>
+                    <div class="weather-value" id="uvIndex">Muito alto</div>
+                    <div class="weather-label" data-translate="uv">UV</div>
+                </div>
+                <div class="weather-card">
+                    <div class="weather-icon">👁️</div>
+                    <div class="weather-value" id="visibility">10 km</div>
+                    <div class="weather-label" data-translate="visibility">Visibilidade</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Previsão de 7 dias -->
+        <section class="forecast-section">
+            <h2 data-translate="forecast6Days">Previsão para os próximos 6 dias</h2>
+            <div class="forecast-container" id="sevenDayForecast">
+                <!-- Previsão será inserida via JavaScript -->
+            </div>
+        </section>
+
+        <!-- Mapa de previsão de chuvas -->
+        <section class="rain-map-section">
+            <h2 data-translate="rainMap">Previsão de Chuvas</h2>
+            <div class="rain-map-container">
+                <div id="precipitationMap" class="precipitation-map"></div>
+                <div class="map-controls">
+                    <button id="togglePrecipitation" class="map-btn active" data-translate="precipitation">Precipitação</button>
+                    <button id="toggleClouds" class="map-btn" data-translate="clouds">Nuvens</button>
+                    <button id="toggleTemperature" class="map-btn" data-translate="temperature">Temperatura</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p data-translate="footer">Desenvolvido por time Trem de IA</p>
+        </div>
+    </footer>
+
+    <!-- Chat com IA -->
+    <div class="ai-chat-container" id="aiChatContainer">
+        <div class="chat-header">
+            <h3 data-translate="chatTitle">Conversar com SabiA</h3>
+            <button class="close-chat" id="closeChat">✕</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="ai-message">
+                <div class="message-avatar">🐦</div>
+                <div class="message-content" data-translate="chatWelcome">
+                    Olá! Sou o SabiA, seu assistente de clima. Como posso ajudar você hoje?
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="chatInput" placeholder="" />
+            <button id="sendMessage">📤</button>
+        </div>
+    </div>
+
+    <!-- Botões de ação -->
+    <div class="action-buttons">
+        <button class="ai-chat-btn" id="aiChatBtn">
+            <img src="img/bird-icon.png" alt="SabiA" class="btn-icon" />
+        </button>
+        <button class="scroll-to-bottom-btn" id="scrollToBottom">
+            <img src="img/scroll-icon.svg" alt="Scroll to bottom" class="btn-icon" />
+        </button>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <p data-translate="loadingWeather">Carregando dados do clima...</p>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    
+    <script src="js/translations.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
