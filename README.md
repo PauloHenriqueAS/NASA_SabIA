@@ -16,7 +16,7 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
 
 ### Our Mascot – The SabIA 🐦
 
-|![Sabia](https://github.com/user-attachments/assets/5b19342b-a8eb-4927-a3bd-69c0dacd71a6)|A wise and curious little bird, native to Parque do Sabiá, who has always observed nature and the weather around him. One day, he decided to learn about Machine Learning to forecast the weather and help the residents of Uberlândia — and now, people all over the world. It represents the harmony between nature and artificial intelligence, combining reliable data from NASA satellites with an intuitive and secure interface designed to take care of you.|
+|![Sabia](https://github.com/user-attachments/assets/f17adcef-048a-41be-887a-dd4872725bd8)|A wise and curious little bird, native to Parque do Sabiá, who has always observed nature and the weather around him. One day, he decided to learn about Machine Learning to forecast the weather and help the residents of Uberlândia — and now, people all over the world. It represents the harmony between nature and artificial intelligence, combining reliable data from NASA satellites with an intuitive and secure interface designed to take care of you.|
 |---------------------------------|----------------------------------------------------------------------------|
 
 ---
@@ -129,6 +129,7 @@ A API é toda construida em python utilizando a estrutura do pacote FastAPI, exp
 
 City: São Paulo - Brasil
 ![Minha imagem](./image.png)
+
 
 
 
