@@ -28,7 +28,7 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
 ### 📲 Mobile App – ersion adapted for Android and iOS (PWA or native app).
 ---
 
-## 🎯 Objetivo
+## 🎯 Objectives
 
 → Make weather monitoring more human and intuitive by combining
 
@@ -42,7 +42,7 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
 
 ## 🌎 Main Features
 
-| Função                          | Descrição                                                                 |
+| Feature                          | Description                                                                 |
 |---------------------------------|----------------------------------------------------------------------------|
 | 🔍 **Location search**       | Allows searching for cities, neighborhoods, or tourist attractions.                  |
 | 🌡️ **Current weather display**   | Displays temperature, thermal sensation, humidity, and wind.                    |
@@ -72,7 +72,7 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
 
 ---
 
-## 🧠 Classificação de Clima (exemplo de lógica)
+## 🧠 Weather Classification (example logic)
 
 | Weather Type        | Simplified Criterion                                       |
 |--------------------------|--------------------------------------------------------------|
@@ -95,7 +95,7 @@ The front end is responsive; our mascot adapts to the current weather by dressin
 
 The platform is available in three languages  **Portuguese**, **English**, and **Spanish** and allows users to check the weather for any location on the planet. Our front end provides all the basic weather forecast data such as maximum and minimum temperature, relative humidity, wind speed, and probability of precipitation.
 
-O front é integrado a uma API alimentado por IA capaz de fazer predições de dados climáticos futuros. Além disso a API também fornece os dados climáticos atuais que são apresentados por padrão no painel da interface.
+The frontend is integrated with an AI-powered API capable of making predictions of future climate data. In addition, the API also provides current climate data that are displayed by default on the interface panel.
 
 ---
 
@@ -113,29 +113,44 @@ O front é integrado a uma API alimentado por IA capaz de fazer predições de d
 
 ## 🧩 Back-End
 
-O BackEnd do SabIA é composto de dois grandes blocos, o primeiro é o modelo de predição alimentado com os dados [da nasa] contendo dados climaticos historicos, tais como precipitações, eventos como _el niño_ e _la niña_ e ciclones tropicias. A construção do modelo está descrita na proxima seção.
+SabIA's backend consists of two main blocks: the first is the prediction model, fed with [NASA data] containing historical climatic data such as precipitation, events like _El Niño_ and _La Niña_, and tropical cyclones. The model construction is described in the next section.
 
-O outro bloco é um sitema de API capaz de pegar os dados climaticos em tempo real, bem como solicitar a predição do clima para dias futuros para o modelo de aprendizado de maquina no coração do SabIA.
+The other block is an API system capable of fetching real-time climatic data, as well as requesting future weather predictions from the machine learning model at the heart of SabIA.
 
-A API é toda construida em python utilizando a estrutura do pacote FastAPI, expondo para o front os seguintes end-points que são utilizados para construir o painel da ferramenta.
+The API is entirely built in Python using the FastAPI framework, exposing the following endpoints to the frontend, which are used to build the tool's panel.
 
-[lista de endpoints]
+[list of endpoints]
 
 ---
 
-## 🛠️ Tecnologias do Back-End
+## 🛠️ Back-End Technologies
 
 → Python.
 
 → FastAPI.
 
-→ [ferramentas de IA].
+→ [AI tools].
+
+---
+
+## 📊 Data Science Study: Weather Forecasting
+
+This section delves into the core data science initiatives driving SabIA's predictive capabilities, specifically focusing on building robust Machine Learning models for time series forecasting of key climatic variables such as Temperature (mean, max, min), Humidity, and Wind speed for Uberlândia, Minas Gerais.
+
+The project encompasses several crucial stages:
+
+*   **Model Construction and Evaluation**: Initial phase focused on building and validating diverse modeling approaches using historical data.
+*   **Data Preparation and Feature Engineering**: A robust phase involving the acquisition of historical climatic data from sources like NASA POWER, along with climatic indices (SOI, ONI). This includes creating temporal lags to capture dependencies and extracting seasonality features (month, day of year, week of year, etc.).
+*   **Short-Term Modeling (Daily Forecast)**: Utilizes XGBoost models to predict daily conditions, simulating real operational scenarios.
+*   **Long-Term Modeling**: Focuses on projecting climatic conditions several months ahead using a recurrent forecasting strategy, where each day's prediction informs the next.
+
+For a comprehensive overview of the models, detailed data preparation, and evaluation metrics, please refer to the [Data README](./Data/README.md).
 
 ---
 
 ## 📸 Visual Example
 
-City: São Paulo - Brasil
+City: São Paulo - Brazil
 ![Minha imagem](./image.png)
 
 
