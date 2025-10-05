@@ -329,15 +329,13 @@ function setupEventListeners() {
         }
     });
 
-    // Campo de data
+    // Campo de data - não fazer busca automática, apenas quando clicar em pesquisar
     elements.dateSearch.addEventListener('change', (e) => {
-        // Se uma data foi selecionada, fazer busca automática se já há uma cidade
-        if (e.target.value && elements.citySearch.placeholder !== 'Uberlândia - Parque do Sabiá') {
-            searchCity();
-        } else if (!e.target.value && selectedDate) {
-            // Se a data foi limpa, voltar aos dados atuais
+        // Apenas atualizar a variável selectedDate, mas não fazer busca automática
+        if (e.target.value) {
+            selectedDate = e.target.value;
+        } else {
             selectedDate = null;
-            searchCity();
         }
     });
 
@@ -523,8 +521,6 @@ async function searchCity() {
     const city = elements.citySearch.value.trim();
     const date = elements.dateSearch.value;
     
-    if (!city) return;
-
     // FORÇAR UBERLÂNDIA - Versão de teste
     const forcedCity = 'Uberlândia';
 
@@ -547,8 +543,8 @@ async function searchCity() {
         elements.citySearch.value = '';
         updateUI();
         
-        // Mostrar aviso se o usuário tentou buscar outra cidade
-        if (city.toLowerCase() !== forcedCity.toLowerCase()) {
+        // Mostrar aviso se o usuário tentou buscar outra cidade (apenas se não for busca por data)
+        if (city.toLowerCase() !== forcedCity.toLowerCase() && !date) {
             showCityRestrictionAlert(city);
         }
     } catch (error) {
@@ -581,6 +577,12 @@ async function getWeatherData(date = null) {
     const requestData = {
         name_city: "Uberlândia"
     };
+    
+    // Adicionar data se fornecida
+    if (date) {
+        requestData.date_wanted = date;
+    }
+    
     
     
     try {
@@ -725,6 +727,12 @@ function updateUI() {
 function updateHistoricalIndicator() {
     const alertCard = document.getElementById('weatherAlert');
     
+    // Sempre remover indicador existente primeiro
+    const existingIndicator = document.querySelector('.historical-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+    
     if (currentWeather && currentWeather.historical) {
         // Adicionar indicador de dados históricos
         const historicalIndicator = document.createElement('div');
@@ -732,24 +740,20 @@ function updateHistoricalIndicator() {
         historicalIndicator.innerHTML = `
             <div class="alert-icon">📅</div>
             <div class="alert-text">
-                <p>Dados históricos para ${formatDate(currentWeather.historicalDate)}</p>
+                <p>Prediction data for ${formatDate(currentWeather.historicalDate)}</p>
             </div>
         `;
         
         // Inserir antes do alerta climático
         alertCard.parentNode.insertBefore(historicalIndicator, alertCard);
-    } else {
-        // Remover indicador se existir
-        const existingIndicator = document.querySelector('.historical-indicator');
-        if (existingIndicator) {
-            existingIndicator.remove();
-        }
     }
 }
 
 // Formatar data para exibição
 function formatDate(dateString) {
-    const date = new Date(dateString);
+    // Corrigir problema de fuso horário - criar data local
+    const [yearStr, monthStr, dayStr] = dateString.split('-');
+    const date = new Date(yearStr, monthStr - 1, dayStr);
     const options = { 
         year: 'numeric', 
         month: 'long', 
@@ -771,10 +775,10 @@ function formatDate(dateString) {
     
     const dayName = dayNames[currentLanguage][date.getDay()];
     const monthName = monthNames[currentLanguage][date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
+    const dayNumber = date.getDate();
+    const yearNumber = date.getFullYear();
     
-    return `${dayName}, ${day} de ${monthName} de ${year}`;
+    return `${dayName}, ${dayNumber} de ${monthName} de ${yearNumber}`;
 }
 
 
