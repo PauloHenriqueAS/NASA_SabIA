@@ -42,24 +42,29 @@ O notebook `train_and_forecast_diario.ipynb` explora a previsão de variáveis c
 Abaixo estão exemplos de gráficos gerados pelo `train_and_forecast_diario.ipynb` que comparam os valores reais com as previsões para as variáveis climáticas:
 
 #### Temperatura Média (T2M)
-![Comparação de Temperatura Média (T2M) - Curto Prazo](versao_atualizada/daily_forecast_t2m.png)
-_Substituir pela imagem real do gráfico de T2M_
+![Comparação de Temperatura Média (T2M) - Curto Prazo]
+<img width="1484" height="584" alt="t2m_daily" src="https://github.com/user-attachments/assets/424951a0-7e03-4768-8ff3-51725035d1de" />
+
 
 #### Temperatura Máxima (T2M_MAX)
-![Comparação de Temperatura Máxima (T2M_MAX) - Curto Prazo](versao_atualizada/daily_forecast_t2m_max.png)
-_Substituir pela imagem real do gráfico de T2M_MAX_
+![Comparação de Temperatura Máxima (T2M_MAX) - Curto Prazo]
+<img width="1484" height="584" alt="t2m_max_daily" src="https://github.com/user-attachments/assets/eea0ea97-3da9-4e6b-b9f9-a4a45b423190" />
+
 
 #### Temperatura Mínima (T2M_MIN)
-![Comparação de Temperatura Mínima (T2M_MIN) - Curto Prazo](versao_atualizada/daily_forecast_t2m_min.png)
-_Substituir pela imagem real do gráfico de T2M_MIN_
+![Comparação de Temperatura Mínima (T2M_MIN) - Curto Prazo]
+<img width="1484" height="584" alt="t2m_min_daily" src="https://github.com/user-attachments/assets/e5307a00-865a-43d9-b2aa-2cdaafe5ba48" />
+
 
 #### Umidade Relativa (RH2M)
-![Comparação de Umidade Relativa (RH2M) - Curto Prazo](versao_atualizada/daily_forecast_rh2m.png)
-_Substituir pela imagem real do gráfico de RH2M_
+![Comparação de Umidade Relativa (RH2M) - Curto Prazo]
+<img width="1484" height="584" alt="rh2m_daily" src="https://github.com/user-attachments/assets/8718e8f5-d57d-49fd-a60b-4c276c3ec9f8" />
+
 
 #### Velocidade do Vento (WS2M)
-![Comparação de Velocidade do Vento (WS2M) - Curto Prazo](versao_atualizada/daily_forecast_ws2m.png)
-_Substituir pela imagem real do gráfico de WS2M_
+![Comparação de Velocidade do Vento (WS2M) - Curto Prazo]
+<img width="1484" height="584" alt="ws2m_daily" src="https://github.com/user-attachments/assets/960bb4f8-1324-4078-8901-53e2d5bdd543" />
+
 
 ---
 
