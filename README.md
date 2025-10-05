@@ -52,6 +52,8 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
 | 🎨 **Dynamic theme**             | Colors and icons adapt to the weather type.                          |
 | 📱 **Responsive layout**         | Seamless experience on desktop and mobile devices.                       |
 
+---
+
 ## 🐦 Weather types and SabIA’s behavior
 
 | Weather Type       | SabIA’s Appearance                         | Example Message                                    |
@@ -67,6 +69,8 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
  | ![Gif 1](./frontend/img/gifs/bird-cold.gif) | ![Gif 2](./frontend/img/gifs/bird-humid.gif) | ![Gif 3](./frontend/img/gifs/bird-rain.gif) | ![Gif 4](./frontend/img/gifs/bird-summer-heat.gif) |
 |----------------------------------------|----------------------------------------|----------------------------------------|----------------------------------------|
 | ![Gif 5](./frontend/img/gifs/bird-uncomfortable.gif) | ![Gif 6](./frontend/img/gifs/bird-very-hot.gif) | ![Gif 7](./frontend/img/gifs/bird-windy.gif) |                                        |
+
+---
 
 ## 🧠 Classificação de Clima (exemplo de lógica)
 
@@ -92,6 +96,8 @@ The front end is responsive; our mascot adapts to the current weather by dressin
 The platform is available in three languages  **Portuguese**, **English**, and **Spanish** and allows users to check the weather for any location on the planet. Our front end provides all the basic weather forecast data such as maximum and minimum temperature, relative humidity, wind speed, and probability of precipitation.
 
 O front é integrado a uma API alimentado por IA capaz de fazer predições de dados climáticos futuros. Além disso a API também fornece os dados climáticos atuais que são apresentados por padrão no painel da interface.
+
+---
 
 ## 🛠️ Front-End Technologies
 
@@ -131,6 +137,7 @@ A API é toda construida em python utilizando a estrutura do pacote FastAPI, exp
 
 City: São Paulo - Brasil
 ![Minha imagem](./image.png)
+
 
 
 
