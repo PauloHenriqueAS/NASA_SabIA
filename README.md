@@ -81,8 +81,8 @@ To achieve this goal, the heart of SabIA is powered by an AI agent trained on hi
 | 🌧️ **Rain**| High rainfall precipitation   
 
 These criteria are defined based on a global consensus.
----
 
+---
 
 ## 🧩 Front-End
 abIA’s front end is entirely built using HTML, CSS, and JavaScript, enabling a responsive, user-friendly, and easily accessible experience.
@@ -115,6 +115,8 @@ A API é toda construida em python utilizando a estrutura do pacote FastAPI, exp
 
 [lista de endpoints]
 
+---
+
 ## 🛠️ Tecnologias do Back-End
 
 → Python.
@@ -129,6 +131,7 @@ A API é toda construida em python utilizando a estrutura do pacote FastAPI, exp
 
 City: São Paulo - Brasil
 ![Minha imagem](./image.png)
+
 
 
 
