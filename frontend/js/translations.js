@@ -93,7 +93,10 @@ const translations = {
         // Mapa
         precipitation: 'Precipitação',
         clouds: 'Nuvens',
-        temperature: 'Temperatura'
+        temperature: 'Temperatura',
+        
+        // Teste
+        testVersionAlert: 'Versão de teste com data até o final do ano e somente Uberlândia disponível'
     },
     
     en: {
@@ -189,7 +192,10 @@ const translations = {
         // Mapa
         precipitation: 'Precipitation',
         clouds: 'Clouds',
-        temperature: 'Temperature'
+        temperature: 'Temperature',
+        
+        // Teste
+        testVersionAlert: 'Test version with date until end of year and only Uberlândia available'
     },
     
     es: {
@@ -285,7 +291,10 @@ const translations = {
         // Mapa
         precipitation: 'Precipitación',
         clouds: 'Nubes',
-        temperature: 'Temperatura'
+        temperature: 'Temperatura',
+        
+        // Teste
+        testVersionAlert: 'Versión de prueba con fecha hasta fin de año y solo Uberlândia disponible'
     }
 };
 

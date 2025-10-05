@@ -116,6 +116,31 @@ body {
     background: transparent;
 }
 
+.date-input {
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    background: transparent;
+    color: #666;
+    min-width: 140px;
+    cursor: pointer;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.date-input:focus {
+    color: #4A90E2;
+}
+
 #searchBtn {
     background: #4A90E2;
     border: none;
@@ -299,6 +324,20 @@ body {
     gap: 1rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border-left: 4px solid #4A90E2;
+}
+
+.historical-indicator {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #F5A623;
+    margin-bottom: 1rem;
+    animation: fadeIn 0.6s ease-out;
 }
 
 .alert-icon {
@@ -691,6 +730,20 @@ body {
     .logo-container {
         display: none;
     }
+    
+    .date-input {
+        min-width: 120px;
+        font-size: 0.8rem;
+    }
+    
+    .search-box {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .search-box input {
+        min-width: 0;
+    }
 }
 
 @media (min-width: 768px) {
@@ -786,6 +839,52 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Estilos para SweetAlert - Alerta de versão de teste */
+.test-version-alert {
+    border-radius: 15px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    max-width: 400px !important;
+}
+
+.test-version-alert .swal2-title {
+    color: #4A90E2 !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+}
+
+.test-version-alert .swal2-content {
+    color: #333 !important;
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+}
+
+.test-version-alert .swal2-timer-progress-bar {
+    background: #4A90E2 !important;
+}
+
+/* Estilos para versão mobile do alerta */
+.test-version-alert-mobile {
+    border-radius: 15px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    max-width: 90% !important;
+}
+
+.test-version-alert-mobile .swal2-title {
+    color: #4A90E2 !important;
+    font-weight: 600 !important;
+    font-size: 1.2rem !important;
+}
+
+.test-version-alert-mobile .swal2-content {
+    color: #333 !important;
+    font-size: 1rem !important;
+    line-height: 1.4 !important;
 }
 
 .weather-card, .forecast-day, .alert-card {

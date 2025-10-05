@@ -31,6 +31,7 @@
                 </div>
                 <div class="search-box">
                     <input type="text" id="citySearch" placeholder="Uberlândia - Parque do Sabiá" />
+                    <input type="date" id="dateSearch" class="date-input" />
                     <button id="searchBtn">🔍</button>
                 </div>
                 <div class="language-selector">
@@ -168,6 +169,9 @@
         <p data-translate="loadingWeather">Carregando dados do clima...</p>
     </div>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 

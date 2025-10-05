@@ -7,6 +7,7 @@ let currentWeather = null;
 let forecast = null;
 let currentCity = CONFIG.DEFAULT_CITY;
 let currentLocation = CONFIG.DEFAULT_LOCATION;
+let selectedDate = null;
 
 // Variáveis do mapa
 let weatherMap = null;
@@ -18,6 +19,7 @@ let currentLanguage = 'en';
 // Elementos DOM
 const elements = {
     citySearch: document.getElementById('citySearch'),
+    dateSearch: document.getElementById('dateSearch'),
     searchBtn: document.getElementById('searchBtn'),
     currentLocation: document.getElementById('currentLocation'),
     weatherBird: document.getElementById('weatherBird'),
@@ -332,11 +334,26 @@ function setupEventListeners() {
         }
     });
 
+    // Campo de data
+    elements.dateSearch.addEventListener('change', (e) => {
+        // Se uma data foi selecionada, fazer busca automática se já há uma cidade
+        if (e.target.value && elements.citySearch.placeholder !== 'Uberlândia - Parque do Sabiá') {
+            searchCity();
+        } else if (!e.target.value && selectedDate) {
+            // Se a data foi limpa, voltar aos dados atuais
+            selectedDate = null;
+            searchCity();
+        }
+    });
+
     // Seletor de idioma
     elements.languageSelect.addEventListener('change', (e) => {
         const selectedLanguage = e.target.value;
         updateInterfaceLanguage(selectedLanguage);
         localStorage.setItem('sabia-language', selectedLanguage);
+        
+        // Mostrar alerta de versão de teste no novo idioma
+        showTestVersionAlert();
     });
 
     // Chat com IA
@@ -351,6 +368,12 @@ function setupEventListeners() {
 
     // Botão de scroll
     elements.scrollToBottom.addEventListener('click', scrollToBottom);
+
+    // Listener para redimensionamento da janela
+    window.addEventListener('resize', () => {
+        // Se mudou de mobile para desktop ou vice-versa, não fazer nada
+        // O alerta só aparece na inicialização e mudança de idioma
+    });
 }
 
 // Inicializar aplicação
@@ -361,6 +384,12 @@ function initializeApp() {
     elements.languageSelect.value = savedLanguage;
     updateInterfaceLanguage(savedLanguage);
 
+    // Mostrar alerta de versão de teste
+    showTestVersionAlert();
+
+    // Configurar limitações do campo de data
+    setupDateLimitations();
+
     // Verificar se é PWA
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
@@ -368,22 +397,59 @@ function initializeApp() {
             .catch(error => console.log('Erro ao registrar SW:', error));
     }
 
-    // Configurar geolocalização
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                getWeatherByCoords(position.coords.latitude, position.coords.longitude);
-            },
-            (error) => {
-                console.log('Erro na geolocalização:', error);
-                // Usar coordenadas do Parque do Sabiá como fallback
-                getWeatherByCoords(CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon);
+    // SEMPRE usar Uberlândia como localização inicial (ignorar geolocalização)
+    getWeatherByCoords(CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon);
+}
+
+// Mostrar alerta de versão de teste
+function showTestVersionAlert() {
+    const message = translateText('testVersionAlert', currentLanguage);
+    
+    // Verificar se é desktop (largura > 768px)
+    const isDesktop = window.innerWidth > 768;
+    
+    if (isDesktop) {
+        // Versão web - toast no canto superior direito
+        Swal.fire({
+            title: '⚠️ Versão de Teste',
+            text: message,
+            icon: 'info',
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 5000,
+            timerProgressBar: true,
+            toast: true,
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdrop: false,
+            customClass: {
+                popup: 'test-version-alert'
             }
-        );
+        });
     } else {
-        // Usar coordenadas do Parque do Sabiá como fallback
-        getWeatherByCoords(CONFIG.DEFAULT_COORDS.lat, CONFIG.DEFAULT_COORDS.lon);
+        // Versão mobile - modal centralizado
+        Swal.fire({
+            title: '⚠️ Versão de Teste',
+            text: message,
+            icon: 'info',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#4A90E2',
+            customClass: {
+                popup: 'test-version-alert-mobile'
+            }
+        });
     }
+}
+
+// Configurar limitações do campo de data
+function setupDateLimitations() {
+    const today = new Date();
+    const maxDate = new Date('2025-12-31');
+    
+    // Definir data máxima como 31/12/2025
+    elements.dateSearch.max = '2025-12-31';
+    
+    // Definir data mínima como hoje
+    elements.dateSearch.min = today.toISOString().split('T')[0];
 }
 
 // Carregar dados do clima
@@ -406,23 +472,58 @@ async function loadWeatherData() {
 // Buscar cidade
 async function searchCity() {
     const city = elements.citySearch.value.trim();
+    const date = elements.dateSearch.value;
+    
     if (!city) return;
 
+    // FORÇAR UBERLÂNDIA - Versão de teste
+    const forcedCity = 'Uberlândia';
+    
     showLoading(true);
     try {
-        await getCurrentWeather(city);
-        await getForecast(city);
-        currentCity = city;
-        currentLocation = city;
-        elements.citySearch.placeholder = city;
+        // Se uma data foi selecionada, buscar dados históricos
+        if (date) {
+            selectedDate = date;
+            await getHistoricalWeather(forcedCity, date);
+        } else {
+            selectedDate = null;
+            await getCurrentWeather(forcedCity);
+            await getForecast(forcedCity);
+        }
+        
+        currentCity = forcedCity;
+        currentLocation = forcedCity;
+        elements.citySearch.placeholder = forcedCity;
         elements.citySearch.value = '';
         updateUI();
+        
+        // Mostrar aviso se o usuário tentou buscar outra cidade
+        if (city.toLowerCase() !== forcedCity.toLowerCase()) {
+            showCityRestrictionAlert(city);
+        }
     } catch (error) {
         console.error('Erro ao buscar cidade:', error);
-        showError('Cidade não encontrada');
+        showError('Erro ao carregar dados do clima');
     } finally {
         showLoading(false);
     }
+}
+
+// Mostrar alerta de restrição de cidade
+function showCityRestrictionAlert(attemptedCity) {
+    const messages = {
+        'pt': `Em versão de teste, apenas Uberlândia está disponível. Você tentou buscar: ${attemptedCity}`,
+        'en': `In test version, only Uberlândia is available. You tried to search: ${attemptedCity}`,
+        'es': `En versión de prueba, solo Uberlândia está disponible. Intentaste buscar: ${attemptedCity}`
+    };
+    
+    Swal.fire({
+        title: '🚫 Cidade Restrita',
+        text: messages[currentLanguage],
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#4A90E2'
+    });
 }
 
 // Obter clima atual
@@ -438,6 +539,80 @@ async function getForecast(city) {
     if (!response.ok) throw new Error('Erro na API');
     const data = await response.json();
     forecast = data.list;
+}
+
+// Obter dados climáticos históricos
+async function getHistoricalWeather(city, date) {
+    // Converter data para timestamp Unix
+    const targetDate = new Date(date);
+    const timestamp = Math.floor(targetDate.getTime() / 1000);
+    
+    // Para dados históricos, usamos a API One Call 3.0 (requer assinatura paga)
+    // Como alternativa, vamos simular dados históricos baseados nos dados atuais
+    // Em uma implementação real, você usaria a API histórica da OpenWeatherMap
+    
+    try {
+        // Primeiro, obter dados atuais para usar como base
+        await getCurrentWeather(city);
+        
+        // Simular dados históricos (em produção, use a API histórica real)
+        if (currentWeather) {
+            // Ajustar dados baseados na data selecionada
+            const daysDiff = Math.floor((Date.now() - targetDate.getTime()) / (1000 * 60 * 60 * 24));
+            
+            // Simular variações baseadas na diferença de dias
+            const tempVariation = Math.sin(daysDiff * 0.1) * 5; // Variação de ±5°C
+            const humidityVariation = Math.cos(daysDiff * 0.2) * 10; // Variação de ±10%
+            
+            // Aplicar variações aos dados atuais
+            currentWeather.main.temp = Math.round(currentWeather.main.temp + tempVariation);
+            currentWeather.main.feels_like = Math.round(currentWeather.main.feels_like + tempVariation);
+            currentWeather.main.humidity = Math.max(0, Math.min(100, Math.round(currentWeather.main.humidity + humidityVariation)));
+            
+            // Adicionar indicador de que são dados históricos
+            currentWeather.historical = true;
+            currentWeather.historicalDate = date;
+        }
+        
+        // Para previsão histórica, vamos usar dados simulados
+        forecast = generateHistoricalForecast(date);
+        
+    } catch (error) {
+        console.error('Erro ao obter dados históricos:', error);
+        throw error;
+    }
+}
+
+// Gerar previsão histórica simulada
+function generateHistoricalForecast(date) {
+    const targetDate = new Date(date);
+    const forecastData = [];
+    
+    // Gerar 5 dias de previsão a partir da data selecionada
+    for (let i = 0; i < 5; i++) {
+        const forecastDate = new Date(targetDate);
+        forecastDate.setDate(targetDate.getDate() + i);
+        
+        // Simular dados de previsão
+        const baseTemp = 25 + Math.sin(i * 0.5) * 8; // Temperatura base com variação
+        const baseHumidity = 60 + Math.cos(i * 0.3) * 20; // Umidade base com variação
+        
+        forecastData.push({
+            dt: Math.floor(forecastDate.getTime() / 1000),
+            main: {
+                temp: baseTemp,
+                temp_max: baseTemp + 3,
+                temp_min: baseTemp - 3,
+                humidity: Math.round(baseHumidity)
+            },
+            weather: [{
+                main: i % 2 === 0 ? 'Clear' : 'Clouds',
+                description: i % 2 === 0 ? 'clear sky' : 'few clouds'
+            }]
+        });
+    }
+    
+    return forecastData;
 }
 
 // Obter clima por coordenadas
@@ -477,6 +652,65 @@ function updateUI() {
     updateWeatherAlert();
     updateCurrentWeather();
     updateForecast();
+    
+    // Mostrar indicador se são dados históricos
+    updateHistoricalIndicator();
+}
+
+// Atualizar indicador de dados históricos
+function updateHistoricalIndicator() {
+    const alertCard = document.getElementById('weatherAlert');
+    
+    if (currentWeather && currentWeather.historical) {
+        // Adicionar indicador de dados históricos
+        const historicalIndicator = document.createElement('div');
+        historicalIndicator.className = 'historical-indicator';
+        historicalIndicator.innerHTML = `
+            <div class="alert-icon">📅</div>
+            <div class="alert-text">
+                <p>Dados históricos para ${formatDate(currentWeather.historicalDate)}</p>
+            </div>
+        `;
+        
+        // Inserir antes do alerta climático
+        alertCard.parentNode.insertBefore(historicalIndicator, alertCard);
+    } else {
+        // Remover indicador se existir
+        const existingIndicator = document.querySelector('.historical-indicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
+    }
+}
+
+// Formatar data para exibição
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        weekday: 'long'
+    };
+    
+    const dayNames = {
+        'pt': ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+        'en': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        'es': ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+    };
+    
+    const monthNames = {
+        'pt': ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+        'en': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        'es': ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+    };
+    
+    const dayName = dayNames[currentLanguage][date.getDay()];
+    const monthName = monthNames[currentLanguage][date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear();
+    
+    return `${dayName}, ${day} de ${monthName} de ${year}`;
 }
 
 
@@ -915,7 +1149,13 @@ function showLoading(show) {
 
 // Mostrar erro
 function showError(message) {
-    alert(message); // Em produção, usar um sistema de notificações melhor
+    Swal.fire({
+        title: 'Erro',
+        text: message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#4A90E2'
+    });
 }
 
 // Detectar mudanças de conectividade

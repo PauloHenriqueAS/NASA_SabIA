@@ -1,7 +1,7 @@
 // Configurações da aplicação SabiA
 const CONFIG = {
     // API OpenWeather - Substitua pela sua chave
-    API_KEY: 'API-Key',
+    API_KEY: 'API_Key',
     
     // URL base da API
     API_BASE_URL: 'https://api.openweathermap.org/data/2.5',
