@@ -1,7 +1,7 @@
 # SabIA - API
 
 <p align="center">
-<img src="https://img.shields.io/badge/STATUS-EM DESENVOLVIMENTO-green"/>
+<img src="https://img.shields.io/badge/STATUS-Develop-green"/>
 </p>
 
 
