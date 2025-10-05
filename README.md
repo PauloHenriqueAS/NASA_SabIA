@@ -14,6 +14,10 @@ SabIA aims to bring convenience to the hectic urban life as well as to the cycli
 
 To achieve this goal, the heart of SabIA is powered by an AI agent trained on historical climate data collected by NASA’s high-tech equipment. This intelligent agent is capable of predicting future weather conditions all that’s needed is to provide the date you want to forecast.
 
+A preview can be found [here](https://www.sabia.earth).
+
+A subpastas contem os codigos e respectivos metodos de instalaçao de cada uma das partes da aplicação
+
 ### Our Mascot – The SabIA 🐦
 
 |![Sabia](https://github.com/user-attachments/assets/f17adcef-048a-41be-887a-dd4872725bd8)|A wise and curious little bird, native to Parque do Sabiá, who has always observed nature and the weather around him. One day, he decided to learn about Machine Learning to forecast the weather and help the residents of Uberlândia — and now, people all over the world. It represents the harmony between nature and artificial intelligence, combining reliable data from NASA satellites with an intuitive and secure interface designed to take care of you.|
@@ -152,6 +156,7 @@ For a comprehensive overview of the models, detailed data preparation, and evalu
 
 City: São Paulo - Brazil
 ![Minha imagem](./image.png)
+
 
 
 
